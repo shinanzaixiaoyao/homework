@@ -1,0 +1,55 @@
+-- 创建触发器
+
+-- 创建添加预订信息后修改房间属性和酒店剩余房间数的触发器
+create trigger book_hotel_room_number_insert
+after insert on book_info
+for each row 
+begin 
+	declare room_id varchar(15);
+	declare hotel_id varchar(15);
+	
+	set room_id=new.brid;
+
+	select r.rhid into hotel_id
+	from room r 
+	where r.rid = room_id;
+
+	update room r 
+	set r.rf = '1'
+	where r.rid =room_id;
+
+	update hotel h
+	set h.hroom_number = h.hroom_number-1
+	where h.hid = hotel_id;
+end;
+
+-- 创建删除预订信息后修改房间属性和酒店剩余房间数并删除相关的客户表好和支付表中的相关信息的触发器
+create trigger book_hotel_room_number_delete
+after delete on book_info
+for each row 
+begin 
+	declare room_id varchar(15);
+	declare hotel_id varchar(15);
+	declare customer_id varchar(25);
+	
+	set room_id=old.brid;
+	set customer_id = old.bcid;
+
+	select r.rhid into hotel_id
+	from room r 
+	where r.rid = room_id;
+
+	update room r 
+	set r.rf = '0'
+	where r.rid =room_id;
+
+	update hotel h
+	set h.hroom_number = h.hroom_number + 1
+	where h.hid = hotel_id;
+
+	delete from pay_info p
+	where p.pcid = customer_id;
+
+	delete from customer c
+	where c.cid = customer_id;
+end;

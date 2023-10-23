@@ -1,0 +1,88 @@
+-- 创建数据库
+create database if not exists hotel_management_system character set 'utf8';
+
+
+-- 使用数据库
+use hotel_management_system;
+
+
+-- 创建表信息
+
+-- 创建客户信息表
+create table if not exists customer(
+cid varchar(25) primary key,
+cname varchar(20) not null,
+csex char(1) not null,
+cid_card varchar(20) not null unique,
+cphone_number varchar(15) not null unique,
+bookmethod varchar(15) not null check(bookmethod = '电话预订' or bookmethod = '网上预订')
+);
+
+
+-- 创建酒店信息表
+create table if not exists hotel(
+hid varchar(15) primary key,
+hname varchar(20) not null,
+haddress varchar(50) not null,
+hphone_number varchar(15) not null,
+hroom_number smallint not null default 600 #表示酒店剩余的房间数量，将酒店初始房间数设置为600间
+);
+
+
+-- 创建房间信息表
+create table if not exists room(
+rid varchar(15) primary key,
+rnum varchar(5) not null,
+rtype varchar(15) not null check(rtype in('单人床','双人床','豪华套间','商务套间')),#房间类型
+rprice decimal(8,2) not null,
+rf varchar(1) not null default '0' check(rf in('0','1')),#房间状态，如果房间被预订或有人住，则设为1，否则设为0
+rhid varchar(15) not null,
+
+constraint fk_rm_ht_id foreign key(rhid) references hotel(hid)
+);
+
+
+-- 创建酒店管理员信息表
+create table if not exists admin(
+aid varchar(15) primary key,
+aname varchar(20) not null,
+apost varchar(15) not null,
+ahid varchar(15) not null,
+
+constraint fk_ad_ht_id foreign key(ahid) references hotel(hid)
+);
+
+
+-- 创建预订信息表
+create table if not exists book_info(
+bid varchar(15) primary key,
+bstart_time datetime not null,#房间预订的起始时间
+blength smallint not null,#房间预订的时长，以小时为单位，smallint的范围为：0~65535，最多大概7~8年，tinyint的范围为：0~255，最多是10天左右（太少，不适合）
+bcid varchar(25) not null,
+brid varchar(15) not null,
+
+constraint fk_bi_ct_id foreign key(bcid) references customer(cid),
+constraint fk_bi_rm_id foreign key(brid) references room(rid)
+);
+
+
+-- 创建支付信息表
+create table if not exists pay_info(
+pid varchar(25) primary key,
+pprice decimal(8,2) not null,
+pway varchar(10) not null check(pway in('微信','支付宝','银行卡')),
+pstate varchar(1) not null default '0' check(pstate in('0','1')),#表示支付状态，0表示待支付，1表示支付成功
+ptime datetime not null,
+pcid varchar(25) not null,
+
+constraint fk_pi_ct_id foreign key(pcid) references customer(cid)
+);
+
+
+-- 创建索引
+
+-- 在customer上创建姓名和身份证号联合唯一索引
+alter table customer 
+add unique index uk_idx_name_id_card(cname,cid_card);
+
+show index from customer;

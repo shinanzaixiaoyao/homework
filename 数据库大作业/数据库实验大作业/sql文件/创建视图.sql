@@ -1,0 +1,82 @@
+-- 创建视图
+
+-- 创建用于查询酒店信息的视图
+create view v_ht
+as 
+select h.hid "酒店编号",h.hname "酒店名",h.haddress "酒店地址",h.hphone_number "酒店联系方式",h.hroom_number "酒店剩余房间数"
+from hotel h;
+
+select *
+from v_ht;
+
+-- 创建用于查询房间信息的视图
+create view v_rm
+as
+select r.rid "房间编号",r.rnum "房间号",r.rtype "房间类型",r.rprice "房间价格",r.rf "房间属性",h.hname "房间所在酒店",h.haddress "房间所在酒店的地址",h.hphone_number "房间所在的酒店的联系电话"
+from room r,hotel h 
+where r.rhid =h.hid ;
+
+select *
+from v_rm vr ;
+
+-- 创建用于查询客户预订情况的视图
+create view v_bi
+as
+select bi.bid "预订编号",c.cname "客户姓名",c.cid_card "客户身份证号",c.cphone_number "客户联系电话",r.rnum "房间号"
+from book_info bi
+join customer c 
+on bi.bcid = c.cid 
+join room r 
+on bi.brid = r.rid ;
+
+select * from v_bi;
+
+-- 创建用于查询入住情况的视图
+#我们假设每一位顾客都是准时到达酒店办理入住
+create view v_os
+as
+select c.cname "客户姓名",c.cphone_number "客户联系电话",r.rnum "入住房间号",bi.bstart_time "起始入住时间",bi.blength "入住时长"
+from book_info bi 
+join customer c on bi.bcid =c.cid 
+join room r on bi.brid=r.rid
+where bi.bstart_time - now() <= 0;
+
+select * from  v_os;
+
+-- 创建生成订单信息的视图
+create view v_order_1
+as
+select bi.bid "预定编号",c.cname "客户姓名",r.rnum "预订房间号",c.cid "客户编号"
+from book_info bi
+join customer c 
+on bi.bcid = c.cid 
+join room r 
+on bi.brid =r.rid ;
+
+create view v_order_2
+as
+select pi2.pprice "支付价格",pi2.pway "支付方式",pi2.pstate "支付状态",pi2.ptime "支付时间",c.cid "客户编号"
+from customer c 
+join pay_info pi2
+on c.cid = pi2.pcid ;
+
+create view v_order
+as
+select vo1.预定编号 ,vo1.客户姓名, vo1.预订房间号 ,vo2.支付状态 ,vo2.支付方式 ,vo2.支付价格 ,vo2.支付时间 
+from v_order_1 vo1
+join v_order_2 vo2
+on vo1.客户编号 = vo2.客户编号 ;
+
+select  *
+from v_order vo ;
+
+-- 创建查询预订时间的视图
+create view book_time
+as
+select c.cid "客户编号",c.cname "客户姓名",c.cid_card "客户身份证号",bi.bstart_time "预定开始时间",date_add(bi.bstart_time,interval bi.blength HOUR) "预定结束时间"
+from book_info bi 
+join customer c 
+on bi.bcid =c.cid;
+
+select *
+from book_time bt ;
