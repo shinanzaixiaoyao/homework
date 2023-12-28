@@ -1,0 +1,44 @@
+ 一、root的操作：
+     1	 rpm -qa|grep httpd
+     2	 cd /etc
+     3	 ls
+     4	 cd httpd
+     5	 ls
+     6	 cd conf
+     7	 ls
+     8	 cat httpd.conf |more
+     9	 ls
+    10	 pwd
+    11	 cd ..
+    12	 ls
+    13	 cd conf.d
+    14	 ls
+    15	 cat userdir.conf 
+    16	 vim userdir.conf 
+    17	 ls /home
+    18	 useradd lili
+    19	 passwd lili
+    20	 systemctl status httpd
+    21	 systemctl start  httpd
+    22	 systemctl status httpd
+    23	 ip a
+    24	 ifconfig
+    25	 systemctl status firewalld
+    26	 systemctl stop  firewalld
+    27	 setenforce 0
+
+
+二、普通用户的操作： 
+
+　　1  ls -a
+    2  mkdir public_html
+    3  cd public_html/
+    4  vim index.html
+    5  ls
+    6  cat index.html 
+    7  ls -l
+    8  cd ..
+    9  ls -l
+    10  cd ..
+    11  ls -l
+    12  chmod 711 lili
