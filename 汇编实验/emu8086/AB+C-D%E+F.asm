@@ -1,0 +1,51 @@
+SSEG SEGMENT STACK
+;    DB 32 DUP(?)
+SSEG ENDS
+
+DSEG SEGMENT 
+    A DB 56
+    B DB -20
+    C DB 106
+    D DB 80
+    E DB -112
+    F DB 15
+    X DW ?
+DSEG ENDS
+
+CSEG SEGMENT
+ASSUME CS:CSEG,DS:DSEG,SS:SSEG
+START:
+    MOV AX,DSEG
+    MOV DS,AX
+    XOR AX,AX
+    
+    MOV AL,A
+    MOV BL,B
+    IMUL BL
+    
+    MOV BX,AX
+    MOV AL,C
+    CBW
+    ADD BX,AX
+    
+    MOV AL,D
+    CBW
+    SUB BX,AX
+    
+    MOV AL,E
+    CBW
+    MOV CX,AX
+    MOV AL,F
+    CBW
+    ADD CX,AX
+    MOV AX,BX
+    CWD
+    
+    IDIV CX
+    
+    MOV X,AX
+    MOV AH,4CH
+    INT 21H
+CSEG ENDS
+END START
+    
